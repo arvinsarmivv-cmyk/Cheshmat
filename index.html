@@ -4,50 +4,69 @@
 <meta charset="UTF-8">
 <title>سایت عاشقانه کامیار</title>
 <style>
-  body {
-    margin:0;
-    padding:0;
-    background: linear-gradient(135deg, #4b0082, #000);
-    color:white;
-    font-family:sans-serif;
-    text-align:center;
-    height:100vh;
-    overflow:hidden;
-    position:relative;
-  }
+body {
+  margin:0;
+  padding:0;
+  background: linear-gradient(135deg, #4b0082, #000);
+  color:white;
+  font-family:sans-serif;
+  text-align:center;
+  height:100vh;
+  overflow:hidden;
+  position:relative;
+}
 
-  #startBtn {
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background: rgba(0,0,0,0.7);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:32px;
-    cursor:pointer;
-    z-index:999;
-  }
+/* Overlay شروع برای لمس واقعی */
+#startBtn {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  cursor:pointer;
+  z-index:999;
+}
 
-  #center-img {
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    width:250px;
-    border-radius:20px;
-    animation:pulse 2s infinite ease-in-out, floaty 4s infinite alternate;
-    box-shadow:0 0 20px rgba(255,255,255,0.5);
-    z-index:2;
-  }
+/* عکس وسط با افکت‌ها */
+#center-img {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:250px;
+  border-radius:20px;
+  box-shadow:0 0 20px rgba(255,255,255,0.5);
+  z-index:2;
+  animation: pulse 2s infinite ease-in-out, floaty 4s infinite alternate, glow 3s infinite alternate;
+}
 
-  @keyframes pulse {0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.1);}}
-  @keyframes floaty {0%{transform:translate(-50%,-50%) translateY(0);}100%{transform:translate(-50%,-50%) translateY(-20px);}}
+@keyframes pulse {0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.1);}}
+@keyframes floaty {0%{transform:translate(-50%,-50%) translateY(0);}100%{transform:translate(-50%,-50%) translateY(-20px);}}
+@keyframes glow {0%{box-shadow:0 0 20px rgba(255,255,255,0.3);}50%{box-shadow:0 0 40px rgba(255,255,255,0.7);}100%{box-shadow:0 0 20px rgba(255,255,255,0.3);}}
 
-  #eqCanvas {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;}
-  .footer {position:absolute;bottom:0;width:100%;padding:20px 0;font-size:24px;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);}
+/* Canvas اکولایزر */
+#eqCanvas {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:1;
+}
+
+.footer {
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:20px 0;
+  font-size:24px;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(4px);
+}
 </style>
 </head>
 <body>
@@ -60,19 +79,21 @@
 <div class="footer">کدینگ بای کامیار</div>
 
 <script>
-const audio = document.getElementById("player");
-const canvas = document.getElementById("eqCanvas");
-const ctx = canvas.getContext("2d");
-const startBtn = document.getElementById("startBtn");
-
+const audio=document.getElementById("player");
+const canvas=document.getElementById("eqCanvas");
+const ctx=canvas.getContext("2d");
+const startBtn=document.getElementById("startBtn");
+const centerImg=document.getElementById("center-img");
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started=false;
+
+// رنگ‌های اکولایزر
 const colors=['#FF0000','#FF7F00','#FFFF00','#00FF00','#0000FF','#4B0082','#8B00FF'];
 
 function setupAudio(){
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  source = audioCtx.createMediaElementSource(audio);
-  analyser = audioCtx.createAnalyser();
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  source=audioCtx.createMediaElementSource(audio);
+  analyser=audioCtx.createAnalyser();
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
@@ -82,6 +103,8 @@ function setupAudio(){
   draw();
 }
 
+// ۱۰ افکت ترکیبی روی اکولایزر و عکس
+let angleOffset=0;
 function draw(){
   requestAnimationFrame(draw);
   analyser.getByteFrequencyData(dataArray);
@@ -93,34 +116,45 @@ function draw(){
   const bars=bufferLength;
   const step=(2*Math.PI)/bars;
 
+  // چرخش و تغییر رنگ دایره‌ای
+  angleOffset+=0.01;
+
   for(let i=0;i<bars;i++){
     const value=dataArray[i];
     const barHeight=value/2;
-    const angle=i*step;
+    const angle=i*step+angleOffset;
 
+    // bounce و spiral
     const x1=centerX+Math.cos(angle)*radius;
     const y1=centerY+Math.sin(angle)*radius;
     const x2=centerX+Math.cos(angle)*(radius+barHeight);
     const y2=centerY+Math.sin(angle)*(radius+barHeight);
 
-    ctx.strokeStyle=colors[i % colors.length];
-    ctx.lineWidth=4;
+    // glow و رنگ دینامیک
+    ctx.strokeStyle=colors[i%colors.length];
+    ctx.shadowColor=colors[i%colors.length];
+    ctx.shadowBlur=10;
+    ctx.lineWidth=4 + Math.sin(i/3)*2;
     ctx.beginPath();
     ctx.moveTo(x1,y1);
     ctx.lineTo(x2,y2);
     ctx.stroke();
   }
+
+  // scale و rotate عکس
+  const scale=1+Math.sin(Date.now()/500)*0.05;
+  centerImg.style.transform=`translate(-50%,-50%) scale(${scale}) rotate(${angleOffset*10}deg)`;
 }
 
-// تعامل واقعی برای مرورگر
-startBtn.addEventListener("click", ()=>{
+// شروع موسیقی و اکولایزر
+startBtn.addEventListener("click",()=>{
   if(started) return;
   started=true;
   audio.play();
   setupAudio();
   startBtn.style.display="none";
 });
-startBtn.addEventListener("touchstart", ()=>{
+startBtn.addEventListener("touchstart",()=>{
   if(started) return;
   started=true;
   audio.play();
