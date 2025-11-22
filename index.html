@@ -12,7 +12,8 @@
     color: white;
     font-family: sans-serif;
     text-align: center;
-    height: 105vh; /* برای اسکرول */
+    height: 200vh; /* بلند برای اسکرول */
+    overflow-x: hidden;
   }
 
   .title {
@@ -21,33 +22,11 @@
     text-shadow: 0 0 10px black;
   }
 
-  /* اکولایزر */
-  .equalizer {
-    display: none;
+  canvas {
+    display: block;
     margin: 40px auto;
-    width: 120px;
-    height: 50px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-
-  .bar {
-    width: 10px;
-    height: 10px;
-    background: #00ffea;
-    border-radius: 5px;
-    animation: bounce 0.6s infinite ease-in-out;
-  }
-
-  .bar:nth-child(2) { animation-delay: .1s; }
-  .bar:nth-child(3) { animation-delay: .2s; }
-  .bar:nth-child(4) { animation-delay: .3s; }
-  .bar:nth-child(5) { animation-delay: .4s; }
-
-  @keyframes bounce {
-    0%, 100% { height: 10px; }
-    50% { height: 40px; }
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
   }
 
   .footer {
@@ -61,37 +40,70 @@
 </head>
 <body>
 
-<h2 class="title">برای پخش آهنگ، صفحه را یکم پایین بکش 🎵</h2>
-
-<!-- اکولایزر -->
-<div id="eq" class="equalizer">
-  <div class="bar"></div>
-  <div class="bar"></div>
-  <div class="bar"></div>
-  <div class="bar"></div>
-  <div class="bar"></div>
-</div>
+<h2 class="title">برای شروع، صفحه را لمس کنید 🎵</h2>
 
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
+<canvas id="eqCanvas" width="500" height="150"></canvas>
 
 <div class="footer">کدینگ بای کامیار</div>
 
 <script>
 const audio = document.getElementById("player");
-const eq = document.getElementById("eq");
-let played = false;
+const canvas = document.getElementById("eqCanvas");
+const ctx = canvas.getContext("2d");
 
-window.addEventListener("scroll", () => {
-  if (!played) {
-    audio.play().then(() => {
-      played = true;
-      eq.style.display = "flex"; // اکولایزر نمایش داده شود
-      console.log("آهنگ پخش شد 🎶");
-    }).catch(err => {
-      console.log("اجازه پخش هنوز داده نشده", err);
-    });
+let audioCtx, analyser, source, dataArray, bufferLength;
+let started = false;
+
+function setupAudio() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  source = audioCtx.createMediaElementSource(audio);
+  analyser = audioCtx.createAnalyser();
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  analyser.fftSize = 64;
+  bufferLength = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(bufferLength);
+
+  draw();
+}
+
+function draw() {
+  requestAnimationFrame(draw);
+  analyser.getByteFrequencyData(dataArray);
+
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const barWidth = (canvas.width / bufferLength) - 2;
+  let x = 0;
+
+  for (let i = 0; i < bufferLength; i++) {
+    const barHeight = dataArray[i];
+    ctx.fillStyle = `rgb(0, 255, 234)`;
+    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+    x += barWidth + 2;
   }
-});
+}
+
+function startMusic() {
+  if (started) return;
+  started = true;
+
+  audio.play();
+  setupAudio();
+
+  // مخفی کردن متن راهنما
+  document.querySelector('.title').style.display = 'none';
+
+  // اسکرول به پایین صفحه به آرامی
+  window.scrollTo({ top: 500, behavior: 'smooth' });
+}
+
+// تعامل واقعی از کاربر
+document.body.addEventListener("click", startMusic, { once: true });
+document.body.addEventListener("touchstart", startMusic, { once: true });
 </script>
 
 </body>
