@@ -7,7 +7,7 @@
 body {
   margin:0;
   padding:0;
-  background: linear-gradient(135deg, #4b0082, #000);
+  background: linear-gradient(135deg, #3a0ca3, #0f0c29);
   color:white;
   font-family:sans-serif;
   text-align:center;
@@ -22,7 +22,7 @@ body {
   left:0;
   width:100%;
   height:100%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.6);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -38,13 +38,13 @@ body {
   transform:translate(-50%,-50%);
   width:250px;
   border-radius:20px;
-  box-shadow:0 0 20px rgba(255,255,255,0.5);
-  z-index:2;
+  box-shadow:0 0 25px rgba(255,255,255,0.5);
   animation: floaty 4s infinite alternate, glow 3s infinite alternate;
+  z-index:2;
 }
 
 @keyframes floaty {0%{transform:translate(-50%,-50%) translateY(0);}100%{transform:translate(-50%,-50%) translateY(-15px);}}
-@keyframes glow {0%{box-shadow:0 0 20px rgba(255,255,255,0.3);}50%{box-shadow:0 0 50px rgba(255,255,255,0.7);}100%{box-shadow:0 0 20px rgba(255,255,255,0.3);}}
+@keyframes glow {0%{box-shadow:0 0 20px rgba(255,255,255,0.3);}50%{box-shadow:0 0 50px rgba(255,255,255,0.6);}100%{box-shadow:0 0 20px rgba(255,255,255,0.3);}}
 
 #eqCanvas {
   position:absolute;
@@ -60,8 +60,8 @@ body {
   width:100%;
   padding:20px 0;
   font-size:24px;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.3);
+  backdrop-filter:blur(3px);
 }
 </style>
 </head>
@@ -71,7 +71,7 @@ body {
 
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
 <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
-<canvas id="eqCanvas" width="600" height="600"></canvas>
+<canvas id="eqCanvas" width="500" height="500"></canvas>
 <div class="footer">کدینگ بای کامیار</div>
 
 <script>
@@ -82,16 +82,15 @@ const startBtn=document.getElementById("startBtn");
 const centerImg=document.getElementById("center-img");
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started=false;
-const colors=['#FF0000','#FF7F00','#FFFF00','#00FF00','#0000FF','#4B0082','#8B00FF'];
+const colors=['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#9D4EDD','#FF6B6B','#FFD93D'];
 
-// particles حرفه‌ای
+// particles ملایم
 const particles=[];
-for(let i=0;i<400;i++){
+for(let i=0;i<200;i++){
   particles.push({
     x:0, y:0, angle:Math.random()*2*Math.PI,
-    radius:Math.random()*1.5+1, speed:Math.random()*1.5+0.5,
-    color:colors[Math.floor(Math.random()*colors.length)],
-    distance:Math.random()*200+50
+    radius:Math.random()*1.5+0.5, distance:Math.random()*150+50,
+    color:colors[Math.floor(Math.random()*colors.length)]
   });
 }
 
@@ -102,7 +101,7 @@ function setupAudio(){
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  analyser.fftSize=256;
+  analyser.fftSize=128;
   bufferLength=analyser.frequencyBinCount;
   dataArray=new Uint8Array(bufferLength);
   draw();
@@ -116,67 +115,50 @@ function draw(){
 
   const centerX=canvas.width/2;
   const centerY=canvas.height/2;
-
+  const radius=100;
+  const bars=bufferLength;
+  const step=(2*Math.PI)/bars;
   angleOffset+=0.01;
 
-  // سه لایه اکولایزر
-  const layers=[100,140,180];
-  layers.forEach((radiusLayer,layerIdx)=>{
-    const bars=bufferLength;
-    const step=(2*Math.PI)/bars;
-    for(let i=0;i<bars;i++){
-      const value=dataArray[i];
-      const barHeight=value/2*(0.6+0.2*layerIdx);
-      const angle=i*step+angleOffset*(layerIdx+1)*0.5;
+  // اکولایزر شعاعی ملایم
+  for(let i=0;i<bars;i++){
+    const value=dataArray[i];
+    const barHeight=value/3;
+    const angle=i*step+angleOffset;
+    const x1=centerX+Math.cos(angle)*radius;
+    const y1=centerY+Math.sin(angle)*radius;
+    const x2=centerX+Math.cos(angle)*(radius+barHeight);
+    const y2=centerY+Math.sin(angle)*(radius+barHeight);
 
-      const x1=centerX+Math.cos(angle)*radiusLayer;
-      const y1=centerY+Math.sin(angle)*radiusLayer;
-      const x2=centerX+Math.cos(angle)*(radiusLayer+barHeight);
-      const y2=centerY+Math.sin(angle)*(radiusLayer+barHeight);
+    ctx.strokeStyle=colors[i%colors.length];
+    ctx.lineWidth=4;
+    ctx.shadowBlur=5;
+    ctx.shadowColor=colors[i%colors.length];
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  }
 
-      // gradient و glow
-      const grad=ctx.createLinearGradient(x1,y1,x2,y2);
-      grad.addColorStop(0,colors[(i+layerIdx)%colors.length]);
-      grad.addColorStop(1,'rgba(255,255,255,0.2)');
-
-      ctx.strokeStyle=grad;
-      ctx.shadowColor=colors[(i+layerIdx)%colors.length];
-      ctx.shadowBlur=5+barHeight/5;
-      ctx.lineWidth=3+layerIdx;
-      ctx.beginPath();
-      ctx.moveTo(x1,y1);
-      ctx.lineTo(x2,y2);
-      ctx.stroke();
-
-      // انفجار نور subtle
-      if(barHeight>40){
-        ctx.beginPath();
-        ctx.arc(x2,y2,Math.random()*4+2,0,Math.PI*2);
-        ctx.fillStyle=colors[(i+layerIdx)%colors.length];
-        ctx.fill();
-      }
-    }
-  });
-
-  // particles حرفه‌ای با trail
+  // particles ملایم
   particles.forEach(p=>{
-    p.x=centerX+Math.cos(p.angle)*(p.distance);
-    p.y=centerY+Math.sin(p.angle)*(p.distance);
+    p.x=centerX+Math.cos(p.angle)*p.distance;
+    p.y=centerY+Math.sin(p.angle)*p.distance;
     p.angle+=0.01;
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius*(1+Math.sin(Date.now()/800)/2),0,Math.PI*2);
+    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
     ctx.fillStyle=p.color;
-    ctx.globalAlpha=0.6 + Math.sin(Date.now()/300)/4;
+    ctx.globalAlpha=0.5 + Math.sin(Date.now()/300)/4;
     ctx.fill();
   });
   ctx.globalAlpha=1;
 
-  // scale و rotate عکس وسط
+  // حرکت عکس وسط
   const scale=1+Math.sin(Date.now()/600)*0.03;
-  centerImg.style.transform=`translate(-50%,-50%) scale(${scale}) rotate(${angleOffset*5}deg)`;
+  centerImg.style.transform=`translate(-50%,-50%) scale(${scale}) rotate(${angleOffset*3}deg)`;
 }
 
-// شروع موسیقی و اکولایزر
+// شروع پخش
 startBtn.addEventListener("click",()=>{
   if(started) return;
   started=true;
