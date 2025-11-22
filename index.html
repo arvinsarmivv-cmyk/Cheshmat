@@ -70,23 +70,22 @@ html, body {
 }
 
 .footer {
-.footer {
-.footer {
-  position: fixed;        /* ثابت در صفحه */
-  bottom: 0;              /* ته صفحه */
-  left: 50%;              /* وسط صفحه افقی */
-  transform: translateX(-50%);  /* دقیقاً وسط */
+  position: fixed;      /* ثابت در صفحه */
+  bottom: 0;            /* ته صفحه */
+  left: 0;              /* شروع از چپ */
+  width: 100%;          /* کل عرض صفحه */
+  display: flex;
+  justify-content: center; /* وسط افقی محتوا */
   font-size: 20px;
   background: rgba(0,0,0,0.4);
-  padding: 8px 15px;
-  border-radius: 10px;
-  text-align: center;
-  z-index: 5;
+  padding: 10px 0;      /* فقط ارتفاع لازم */
+  z-index: 10;
 }
 
 .footer a {
   color: #9b30ff;
   text-decoration: none;
+}
 }
 </style>
 </head>
