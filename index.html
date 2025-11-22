@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>سایت کامیار</title>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: url("cheshm.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: sans-serif;
+    color: white;
+    text-align: center;
+    height: 200vh; /* صفحه بلندتر می‌شود تا اسکرول داشته باشد */
+  }
+
+  .title {
+    padding-top: 80px;
+    font-size: 28px;
+    backdrop-filter: blur(4px);
+  }
+
+  .footer {
+    margin-top: 120vh;
+    padding: 40px 0;
+    font-size: 24px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+  }
+</style>
+</head>
+
+<body>
+
+<h2 class="title">🎵 در حال پخش آهنگ...</h2>
+
+<audio id="player" src="ahang.mp3" preload="auto"></audio>
+
+<div class="footer">
+  کدینگ بای کامیار
+</div>
+
+<script>
+  window.onload = () => {
+    const audio = document.getElementById("player");
+    audio.muted = true;
+
+    audio.play().then(() => {
+      setTimeout(() => {
+        audio.muted = false;
+      }, 300);
+    }).catch(() => {
+      document.body.innerHTML += "<p>⚠️ همراه عزیز، یکبار روی صفحه بزن تا آهنگ پخش بشه</p>";
+
+      document.body.addEventListener("click", () => {
+        audio.muted = false;
+        audio.play();
+      }, { once: true });
+    });
+  };
+</script>
+
+</body>
+</html>
