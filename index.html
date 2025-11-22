@@ -2,7 +2,7 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>سایت عاشقانه کامیار</title>
+<title>❤️</title>
 <style>
 body {
   margin:0;
@@ -10,7 +10,7 @@ body {
   background: linear-gradient(135deg, #1b0030, #0f0c29);
   font-family:sans-serif;
   overflow:hidden;
-  height:100vh;
+  height:105vh;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -38,7 +38,7 @@ body {
   border-radius:15px;
   box-shadow:0 0 30px rgba(255,255,255,0.5);
   position:relative;
-  z-index:2;
+  z-index:3;
   animation: floaty 4s infinite alternate;
 }
 
@@ -53,12 +53,12 @@ body {
 
 @keyframes floaty {0%{transform: translateY(0);}100%{transform: translateY(-15px);}}
 
-#eqCanvas {
+#eqCanvas, #starsCanvas {
   position:absolute;
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  z-index:1;
+  z-index:2;
 }
 
 .footer {
@@ -78,9 +78,11 @@ body {
 </head>
 <body>
 
-<div id="overlay">🎵 لمس کنید تا آهنگ پخش شود</div>
+<div id="overlay">🎵 لمس یا اسکرول کنید تا آهنگ پخش شود</div>
 
+<canvas id="starsCanvas" width="600" height="600"></canvas>
 <canvas id="eqCanvas" width="600" height="600"></canvas>
+
 <div style="position:relative;">
   <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
   <span onclick="window.open('tg://resolve?domain=yourfriend','_blank')"></span>
@@ -94,17 +96,29 @@ body {
 const overlay = document.getElementById('overlay');
 const audio = document.getElementById('player');
 const eqCanvas = document.getElementById('eqCanvas');
-const ctx = eqCanvas.getContext('2d');
+const eqCtx = eqCanvas.getContext('2d');
+const starsCanvas = document.getElementById('starsCanvas');
+const sCtx = starsCanvas.getContext('2d');
 const centerImg = document.getElementById('center-img');
 
 let audioCtx, analyser, source, dataArray, bufferLength;
+let started = false;
 
-overlay.addEventListener('click',()=>{
+// تابع شروع آهنگ و اکولایزر
+function startAudio(){
+  if(started) return;
+  started = true;
   overlay.style.display='none';
   audio.play().catch(err=>console.log(err));
   setupAudio();
-});
+}
 
+// کوچک‌ترین تعامل کاربر کافی است
+document.addEventListener('touchstart', startAudio, {once:true});
+document.addEventListener('mousedown', startAudio, {once:true});
+document.addEventListener('scroll', startAudio, {once:true});
+
+// اکولایزر ژله‌ای
 function setupAudio(){
   audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
@@ -118,10 +132,12 @@ function setupAudio(){
 }
 
 let angleOffset=0;
+const eqColors = ['#000','#9b30ff'];
+
 function drawEQ(){
   requestAnimationFrame(drawEQ);
   analyser.getByteFrequencyData(dataArray);
-  ctx.clearRect(0,0,eqCanvas.width,eqCanvas.height);
+  eqCtx.clearRect(0,0,eqCanvas.width,eqCanvas.height);
 
   const centerX = eqCanvas.width/2;
   const centerY = eqCanvas.height/2;
@@ -132,33 +148,65 @@ function drawEQ(){
 
   for(let i=0;i<bars;i++){
     const value = dataArray[i];
-    const barHeight = value/2 + Math.sin(Date.now()/200+i)*10; // ژله‌ای
+    const barHeight = value/2 + Math.sin(Date.now()/200+i)*10;
     const angle = i*step + angleOffset;
-
     const x1 = centerX + Math.cos(angle)*radius;
     const y1 = centerY + Math.sin(angle)*radius;
     const x2 = centerX + Math.cos(angle)*(radius+barHeight);
     const y2 = centerY + Math.sin(angle)*(radius+barHeight);
 
-    const grad = ctx.createLinearGradient(x1,y1,x2,y2);
-    grad.addColorStop(0,'#000');
-    grad.addColorStop(1,'#9b30ff');
+    const grad = eqCtx.createLinearGradient(x1,y1,x2,y2);
+    grad.addColorStop(0, eqColors[0]);
+    grad.addColorStop(1, eqColors[1]);
 
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = 4;
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = '#9b30ff';
-    ctx.beginPath();
-    ctx.moveTo(x1,y1);
-    ctx.lineTo(x2,y2);
-    ctx.stroke();
+    eqCtx.strokeStyle = grad;
+    eqCtx.lineWidth = 4;
+    eqCtx.shadowBlur = 8;
+    eqCtx.shadowColor = eqColors[1];
+    eqCtx.beginPath();
+    eqCtx.moveTo(x1,y1);
+    eqCtx.lineTo(x2,y2);
+    eqCtx.stroke();
   }
 }
+
+// ستاره‌ها (*)
+const stars = [];
+const starCount = 100;
+
+for(let i=0;i<starCount;i++){
+  stars.push({
+    x: Math.random()*window.innerWidth,
+    y: Math.random()*centerImg.offsetTop,
+    size: Math.random()*3+1,
+    speed: Math.random()*1+0.5
+  });
+}
+
+function drawStars(){
+  sCtx.clearRect(0,0,starsCanvas.width,starsCanvas.height);
+  stars.forEach(s=>{
+    sCtx.fillStyle = 'white';
+    sCtx.shadowBlur = 5;
+    sCtx.shadowColor = 'white';
+    sCtx.font = `${s.size*5}px Arial`;
+    sCtx.fillText('*', s.x, s.y);
+    s.y += s.speed;
+    if(s.y > centerImg.offsetTop + centerImg.offsetHeight){
+      s.y = centerImg.offsetTop;
+      s.x = Math.random()*window.innerWidth;
+    }
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
 
 // ری‌سایز canvas
 window.addEventListener('resize',()=>{
   eqCanvas.width = window.innerWidth;
   eqCanvas.height = window.innerHeight;
+  starsCanvas.width = window.innerWidth;
+  starsCanvas.height = window.innerHeight;
 });
 </script>
 
