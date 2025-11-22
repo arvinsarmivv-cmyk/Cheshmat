@@ -2,144 +2,111 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>سایت شیک و بالغ کامیار</title>
+<title>سایت عاشقانه کامیار</title>
 <style>
 body {
   margin:0;
   padding:0;
-  background: linear-gradient(135deg, #2c003e, #0f0c29);
+  background: linear-gradient(135deg, #1b0030, #0f0c29);
   font-family:sans-serif;
-  color:white;
   overflow:hidden;
   height:100vh;
   display:flex;
-  flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
+  color:white;
 }
 
-#startBtn {
-  padding:20px 40px;
-  background: rgba(255,255,255,0.1);
-  border:2px solid #fff;
-  border-radius:12px;
-  font-size:24px;
+#overlay {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
   cursor:pointer;
-  transition: all 0.3s;
-}
-#startBtn:hover {
-  background: rgba(255,255,255,0.2);
-  transform: scale(1.05);
+  z-index:999;
 }
 
 #center-img {
   width:350px;
   border-radius:15px;
-  margin:20px 0;
-  box-shadow:0 0 25px rgba(255,255,255,0.5);
-  z-index:2;
+  box-shadow:0 0 30px rgba(255,255,255,0.5);
   position:relative;
+  z-index:2;
   animation: floaty 4s infinite alternate;
 }
 
-@keyframes floaty {
-  0%{transform: translateY(0);}
-  100%{transform: translateY(-15px);}
-}
-
-#particlesCanvas, #eqCanvas {
+#center-img span {
   position:absolute;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  pointer-events:none;
+  cursor:pointer;
+}
+
+@keyframes floaty {0%{transform: translateY(0);}100%{transform: translateY(-15px);}}
+
+#eqCanvas {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
   z-index:1;
 }
 
 .footer {
-  margin-top:40px;
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:15px 0;
   font-size:20px;
-  color:rgba(255,255,255,0.7);
+  background: rgba(0,0,0,0.3);
+}
+
+.footer a {
+  color: #9b30ff;
+  text-decoration:none;
 }
 </style>
 </head>
 <body>
 
-<div id="startBtn">🎵 لمس کنید تا آهنگ پخش شود</div>
+<div id="overlay">🎵 لمس کنید تا آهنگ پخش شود</div>
 
-<canvas id="particlesCanvas"></canvas>
-<canvas id="eqCanvas"></canvas>
-<img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
+<canvas id="eqCanvas" width="600" height="600"></canvas>
+<div style="position:relative;">
+  <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
+  <span onclick="window.open('tg://resolve?domain=yourfriend','_blank')"></span>
+</div>
+
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
-<div class="footer">کدینگ بای کامیار</div>
+
+<div class="footer">Coded by <a href="https://t.me/kameiyar" target="_blank">kamiyar</a></div>
 
 <script>
-const startBtn = document.getElementById('startBtn');
+const overlay = document.getElementById('overlay');
 const audio = document.getElementById('player');
-const centerImg = document.getElementById('center-img');
-
-function playMusic() {
-  audio.play().catch(err=>{
-    console.log("نیاز به لمس کاربر:", err);
-  });
-  startBtn.style.display="none";
-  setupAudio();
-}
-startBtn.addEventListener('click', playMusic);
-startBtn.addEventListener('touchstart', playMusic);
-
-// Particles نورانی نرم
-const pCanvas = document.getElementById('particlesCanvas');
-const pctx = pCanvas.getContext('2d');
-pCanvas.width = window.innerWidth;
-pCanvas.height = window.innerHeight;
-
-const particles = [];
-for(let i=0;i<150;i++){
-  particles.push({
-    x: Math.random()*window.innerWidth,
-    y: Math.random()*window.innerHeight,
-    radius: Math.random()*2+1,
-    speed: Math.random()*0.5+0.2,
-    angle: Math.random()*2*Math.PI,
-    color: `rgba(255,255,255,${Math.random()*0.5+0.3})`
-  });
-}
-
-function drawParticles(){
-  pctx.clearRect(0,0,pCanvas.width,pCanvas.height);
-  particles.forEach(p=>{
-    pctx.beginPath();
-    pctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
-    pctx.fillStyle=p.color;
-    pctx.shadowBlur = 4;
-    pctx.shadowColor = '#fff';
-    pctx.fill();
-
-    p.x += Math.cos(p.angle)*p.speed;
-    p.y += Math.sin(p.angle)*p.speed;
-
-    if(p.x<0) p.x=pCanvas.width;
-    if(p.x>pCanvas.width) p.x=0;
-    if(p.y<0) p.y=pCanvas.height;
-    if(p.y>pCanvas.height) p.y=0;
-  });
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
-
-// اکولایزر دایره‌ای ملایم
 const eqCanvas = document.getElementById('eqCanvas');
-const ectx = eqCanvas.getContext('2d');
-eqCanvas.width = window.innerWidth;
-eqCanvas.height = window.innerHeight;
+const ctx = eqCanvas.getContext('2d');
+const centerImg = document.getElementById('center-img');
 
 let audioCtx, analyser, source, dataArray, bufferLength;
 
+overlay.addEventListener('click',()=>{
+  overlay.style.display='none';
+  audio.play().catch(err=>console.log(err));
+  setupAudio();
+});
+
 function setupAudio(){
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
   source.connect(analyser);
@@ -150,49 +117,46 @@ function setupAudio(){
   drawEQ();
 }
 
-let angleOffset = 0;
-const eqColors = ['#FFD700','#FF6B6B','#6BCB77','#4D96FF','#FF69B4','#FF4500'];
-
+let angleOffset=0;
 function drawEQ(){
   requestAnimationFrame(drawEQ);
   analyser.getByteFrequencyData(dataArray);
-  ectx.clearRect(0,0,eqCanvas.width,eqCanvas.height);
+  ctx.clearRect(0,0,eqCanvas.width,eqCanvas.height);
 
   const centerX = eqCanvas.width/2;
   const centerY = eqCanvas.height/2;
-  const radius = centerImg.width/2 + 30;
+  const radius = centerImg.width/2 + 20;
   const bars = bufferLength;
   const step = (2*Math.PI)/bars;
-  angleOffset += 0.01;
+  angleOffset += 0.02;
 
   for(let i=0;i<bars;i++){
     const value = dataArray[i];
-    const barHeight = value/2;
+    const barHeight = value/2 + Math.sin(Date.now()/200+i)*10; // ژله‌ای
     const angle = i*step + angleOffset;
+
     const x1 = centerX + Math.cos(angle)*radius;
     const y1 = centerY + Math.sin(angle)*radius;
     const x2 = centerX + Math.cos(angle)*(radius+barHeight);
     const y2 = centerY + Math.sin(angle)*(radius+barHeight);
 
-    const grad = ectx.createLinearGradient(x1,y1,x2,y2);
-    grad.addColorStop(0, eqColors[i%eqColors.length]);
-    grad.addColorStop(1,'rgba(255,255,255,0.2)');
+    const grad = ctx.createLinearGradient(x1,y1,x2,y2);
+    grad.addColorStop(0,'#000');
+    grad.addColorStop(1,'#9b30ff');
 
-    ectx.strokeStyle = grad;
-    ectx.lineWidth = 4;
-    ectx.shadowBlur = 6;
-    ectx.shadowColor = eqColors[i%eqColors.length];
-    ectx.beginPath();
-    ectx.moveTo(x1,y1);
-    ectx.lineTo(x2,y2);
-    ectx.stroke();
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 4;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#9b30ff';
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
   }
 }
 
 // ری‌سایز canvas
 window.addEventListener('resize',()=>{
-  pCanvas.width = window.innerWidth;
-  pCanvas.height = window.innerHeight;
   eqCanvas.width = window.innerWidth;
   eqCanvas.height = window.innerHeight;
 });
