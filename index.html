@@ -104,22 +104,14 @@ const centerImg = document.getElementById('center-img');
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
 
-// کوچک‌ترین تعامل کافی است
-function startAudio(){
-  if(started) return;
+// تابع شروع آهنگ و اکولایزر (تضمینی)
+function startAudio() {
+  if (started) return;
   started = true;
-  overlay.style.display='none';
-  audio.play().catch(err=>console.log(err));
-  setupAudio();
-}
+  overlay.style.display = 'none';
 
-document.addEventListener('touchstart', startAudio, {once:true});
-document.addEventListener('mousedown', startAudio, {once:true});
-document.addEventListener('scroll', startAudio, {once:true});
-
-// اکولایزر ژله‌ای مشکی-بنفش
-function setupAudio(){
-  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  // AudioContext بعد از تعامل ساخته می‌شود
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
   source.connect(analyser);
@@ -127,9 +119,17 @@ function setupAudio(){
   analyser.fftSize = 128;
   bufferLength = analyser.frequencyBinCount;
   dataArray = new Uint8Array(bufferLength);
+
+  audio.play().catch(err => console.log(err));
   drawEQ();
 }
 
+// کوچک‌ترین تعامل: لمس، کلیک، اسکرول
+document.addEventListener('touchstart', startAudio, { once:true });
+document.addEventListener('mousedown', startAudio, { once:true });
+document.addEventListener('scroll', startAudio, { once:true });
+
+// اکولایزر ژله‌ای مشکی-بنفش
 let angleOffset=0;
 const eqColors = ['#000','#9b30ff'];
 
