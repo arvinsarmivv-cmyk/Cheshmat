@@ -8,12 +8,12 @@
   body {
     margin: 0;
     padding: 0;
-    background: url("cheshm.jpg") no-repeat center center fixed;
+    background: url("cheshmat.jpg") no-repeat center center fixed;
     background-size: cover;
-    font-family: sans-serif;
     color: white;
+    font-family: sans-serif;
     text-align: center;
-    height: 200vh; /* صفحه بلندتر می‌شود تا اسکرول داشته باشد */
+    height: 120vh; /* ایجاد اسکرول */
   }
 
   .title {
@@ -35,6 +35,41 @@
 <body>
 
 <h2 class="title">🎵 در حال پخش آهنگ...</h2>
+
+<audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
+
+<div class="footer">
+  کدینگ بای کامیار
+</div>
+
+<script>
+  const audio = document.getElementById("player");
+
+  // تلاش چند مرحله‌ای برای شروع پخش خودکار
+  async function autoPlay() {
+    try {
+      audio.muted = true;   // اجازه پخش خودکار
+      await audio.play();   // شروع پخش
+
+      // بعد کمی صدای واقعی فعال شود
+      setTimeout(() => {
+        audio.muted = false;
+        audio.volume = 1.0;
+      }, 300);
+
+    } catch(err) {
+      // اگر شکست خورد دوباره امتحان می‌کنیم
+      setTimeout(autoPlay, 200);
+    }
+  }
+
+  // تلاش قبل و بعد از Load
+  autoPlay();
+  window.addEventListener("load", autoPlay);
+</script>
+
+</body>
+</html><h2 class="title">🎵 در حال پخش آهنگ...</h2>
 
 <audio id="player" src="ahang.mp3" preload="auto"></audio>
 
