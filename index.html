@@ -1,17 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>سایت عاشقانه کامیار</title>
+<title>💜</title>
 <style>
-html, body {
+body {
   margin:0;
   padding:0;
-  width:100%;
-  height:100%;
   background: linear-gradient(135deg, #1b0030, #0f0c29);
-  overflow:hidden;
   font-family:sans-serif;
+  overflow:hidden;
+  height:105vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
   color:white;
 }
 
@@ -30,19 +34,12 @@ html, body {
   z-index:999;
 }
 
-#center-container {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  z-index:3;
-  text-align:center;
-}
-
 #center-img {
   width:350px;
   border-radius:15px;
   box-shadow:0 0 30px rgba(255,255,255,0.5);
+  position:relative;
+  z-index:3;
   animation: floaty 4s infinite alternate;
 }
 
@@ -53,7 +50,6 @@ html, body {
   width:100%;
   height:100%;
   cursor:pointer;
-  display:block;
 }
 
 @keyframes floaty {0%{transform: translateY(0);}100%{transform: translateY(-15px);}}
@@ -84,17 +80,17 @@ html, body {
 </head>
 <body>
 
-<div id="overlay">🎵 لمس یا کلیک کنید تا آهنگ پخش شود</div>
+<div id="overlay">🎵</div>
 
 <canvas id="starsCanvas"></canvas>
 <canvas id="eqCanvas"></canvas>
 
-<div id="center-container">
-  <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
+<div style="position:relative;">
+  <img id="center-img" src="cheshm1.jpg" alt="چشمات">
   <span onclick="window.open('tg://resolve?domain=kameiyar','_blank')"></span>
 </div>
 
-<audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
+<audio id="player" src="Ahang1.mp3" preload="auto" playsinline></audio>
 
 <div class="footer">Coded by <a href="https://t.me/kameiyar" target="_blank">kamiyar</a></div>
 
@@ -110,12 +106,13 @@ const centerImg = document.getElementById('center-img');
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
 
-// شروع آهنگ بعد از تعامل کاربر
+// شروع آهنگ بعد از کوچک‌ترین تعامل
 function startAudio() {
-  if(started) return;
+  if (started) return;
   started = true;
-  overlay.style.display='none';
+  overlay.style.display = 'none';
 
+  // AudioContext بعد از تعامل ساخته شود
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
@@ -129,8 +126,10 @@ function startAudio() {
   drawEQ();
 }
 
-overlay.addEventListener('click', startAudio, {once:true});
-overlay.addEventListener('touchstart', startAudio, {once:true});
+// تعاملات کوچک: لمس، کلیک، اسکرول
+document.addEventListener('touchstart', startAudio, { once:true });
+document.addEventListener('mousedown', startAudio, { once:true });
+document.addEventListener('scroll', startAudio, { once:true });
 
 // اکولایزر ژله‌ای مشکی-بنفش
 let angleOffset=0;
@@ -172,9 +171,9 @@ function drawEQ(){
   }
 }
 
-// ستاره‌ها (*) در تمام صفحه
+// ستاره‌ها (*) در کل صفحه
 const stars = [];
-const starCount = 250;
+const starCount = 200;
 
 function initStars(){
   stars.length = 0;
