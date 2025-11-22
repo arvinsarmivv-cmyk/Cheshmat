@@ -8,12 +8,12 @@
   body {
     margin: 0;
     padding: 0;
-    background: url("cheshmat.jpg") no-repeat center center fixed;
+    background: url("cheshm.jpg") no-repeat center center fixed;
     background-size: cover;
     color: white;
     font-family: sans-serif;
     text-align: center;
-    height: 120vh; /* ایجاد اسکرول */
+    height: 110vh;
   }
 
   .title {
@@ -38,63 +38,38 @@
 
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
 
-<div class="footer">
-  کدینگ بای کامیار
-</div>
+<div class="footer">کدینگ بای کامیار</div>
 
 <script>
   const audio = document.getElementById("player");
 
-  // تلاش چند مرحله‌ای برای شروع پخش خودکار
-  async function autoPlay() {
-    try {
-      audio.muted = true;   // اجازه پخش خودکار
-      await audio.play();   // شروع پخش
-
-      // بعد کمی صدای واقعی فعال شود
-      setTimeout(() => {
-        audio.muted = false;
-        audio.volume = 1.0;
-      }, 300);
-
-    } catch(err) {
-      // اگر شکست خورد دوباره امتحان می‌کنیم
-      setTimeout(autoPlay, 200);
-    }
+  function fakeClick() {
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true, view: window });
+    document.body.dispatchEvent(event);
   }
 
-  // تلاش قبل و بعد از Load
-  autoPlay();
-  window.addEventListener("load", autoPlay);
-</script>
-
-</body>
-</html><h2 class="title">🎵 در حال پخش آهنگ...</h2>
-
-<audio id="player" src="ahang.mp3" preload="auto"></audio>
-
-<div class="footer">
-  کدینگ بای کامیار
-</div>
-
-<script>
-  window.onload = () => {
-    const audio = document.getElementById("player");
-    audio.muted = true;
-
+  function startMusic() {
     audio.play().then(() => {
-      setTimeout(() => {
-        audio.muted = false;
-      }, 300);
+      console.log("Music playing!");
     }).catch(() => {
-      document.body.innerHTML += "<p>⚠️ همراه عزیز، یکبار روی صفحه بزن تا آهنگ پخش بشه</p>";
-
-      document.body.addEventListener("click", () => {
-        audio.muted = false;
-        audio.play();
-      }, { once: true });
+      // اگر نشد، چندتا اتوکلیک دیگه امتحان کنه
+      fakeClick();
+      setTimeout(startMusic, 150);
     });
+  }
+
+  // وقتی صفحه بالا میاد
+  window.onload = () => {
+    fakeClick();
+    fakeClick();
+    fakeClick();
+    startMusic();
   };
+
+  // اگر مرورگر هنوز گیر داد
+  document.body.addEventListener("click", () => {
+    audio.play();
+  });
 </script>
 
 </body>
