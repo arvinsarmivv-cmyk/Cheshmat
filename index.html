@@ -13,7 +13,7 @@
     color: white;
     font-family: sans-serif;
     text-align: center;
-    height: 110vh;
+    height: 105vh;
   }
 
   .title {
@@ -43,33 +43,27 @@
 <script>
   const audio = document.getElementById("player");
 
-  function fakeClick() {
-    const event = new MouseEvent("click", { bubbles: true, cancelable: true, view: window });
-    document.body.dispatchEvent(event);
+  async function ultraAutoplay() {
+    try {
+      audio.volume = 0.001; // تقریبا بی‌صدا → مرورگر آزاد می‌کند
+      await audio.play();
+
+      // بعد از پخش، ولوم را زیاد کن
+      setTimeout(() => {
+        audio.volume = 1.0;
+      }, 300);
+
+    } catch (err) {
+      // اگر پخش نشد، دوباره امتحان کن
+      setTimeout(ultraAutoplay, 200);
+    }
   }
 
-  function startMusic() {
-    audio.play().then(() => {
-      console.log("Music playing!");
-    }).catch(() => {
-      // اگر نشد، چندتا اتوکلیک دیگه امتحان کنه
-      fakeClick();
-      setTimeout(startMusic, 150);
-    });
-  }
+  // چند تلاش قبل و بعد از لود
+  ultraAutoplay();
+  window.addEventListener("load", ultraAutoplay);
+  document.addEventListener("DOMContentLoaded", ultraAutoplay);
 
-  // وقتی صفحه بالا میاد
-  window.onload = () => {
-    fakeClick();
-    fakeClick();
-    fakeClick();
-    startMusic();
-  };
-
-  // اگر مرورگر هنوز گیر داد
-  document.body.addEventListener("click", () => {
-    audio.play();
-  });
 </script>
 
 </body>
