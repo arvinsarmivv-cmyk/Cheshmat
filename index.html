@@ -10,7 +10,7 @@ body {
   background: linear-gradient(135deg, #1b0030, #0f0c29);
   font-family:sans-serif;
   overflow:hidden;
-  height:105vh;
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -85,7 +85,7 @@ body {
 
 <div style="position:relative;">
   <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
-  <span onclick="window.open('tg://resolve?domain=yourfriend','_blank')"></span>
+  <span onclick="window.open('tg://resolve?domain=kameiyar','_blank')"></span>
 </div>
 
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
@@ -104,7 +104,7 @@ const centerImg = document.getElementById('center-img');
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
 
-// تابع شروع آهنگ و اکولایزر
+// کوچک‌ترین تعامل کافی است
 function startAudio(){
   if(started) return;
   started = true;
@@ -113,12 +113,11 @@ function startAudio(){
   setupAudio();
 }
 
-// کوچک‌ترین تعامل کاربر کافی است
 document.addEventListener('touchstart', startAudio, {once:true});
 document.addEventListener('mousedown', startAudio, {once:true});
 document.addEventListener('scroll', startAudio, {once:true});
 
-// اکولایزر ژله‌ای
+// اکولایزر ژله‌ای مشکی-بنفش
 function setupAudio(){
   audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
@@ -170,7 +169,7 @@ function drawEQ(){
   }
 }
 
-// ستاره‌ها (*)
+// ستاره‌ها (*) از بالای عکس تا پایین
 const stars = [];
 const starCount = 100;
 
