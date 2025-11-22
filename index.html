@@ -55,9 +55,10 @@ body {
 
 #eqCanvas, #starsCanvas {
   position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
   z-index:2;
 }
 
@@ -80,8 +81,8 @@ body {
 
 <div id="overlay">🎵 لمس یا اسکرول کنید تا آهنگ پخش شود</div>
 
-<canvas id="starsCanvas" width="600" height="600"></canvas>
-<canvas id="eqCanvas" width="600" height="600"></canvas>
+<canvas id="starsCanvas"></canvas>
+<canvas id="eqCanvas"></canvas>
 
 <div style="position:relative;">
   <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
@@ -110,6 +111,7 @@ function startAudio() {
   started = true;
   overlay.style.display = 'none';
 
+  // AudioContext بعد از تعامل ساخته شود
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
@@ -123,7 +125,7 @@ function startAudio() {
   drawEQ();
 }
 
-// تعامل کوچک: لمس، کلیک، اسکرول
+// تعاملات کوچک: لمس، کلیک، اسکرول
 document.addEventListener('touchstart', startAudio, { once:true });
 document.addEventListener('mousedown', startAudio, { once:true });
 document.addEventListener('scroll', startAudio, { once:true });
@@ -170,15 +172,18 @@ function drawEQ(){
 
 // ستاره‌ها (*) در کل صفحه
 const stars = [];
-const starCount = 150;
+const starCount = 200;
 
-for(let i=0;i<starCount;i++){
-  stars.push({
-    x: Math.random()*window.innerWidth,
-    y: Math.random()*window.innerHeight,
-    size: Math.random()*3+1,
-    speed: Math.random()*0.5+0.2
-  });
+function initStars(){
+  stars.length = 0;
+  for(let i=0;i<starCount;i++){
+    stars.push({
+      x: Math.random()*window.innerWidth,
+      y: Math.random()*window.innerHeight,
+      size: Math.random()*3+1,
+      speed: Math.random()*0.5+0.2
+    });
+  }
 }
 
 function drawStars(){
@@ -197,15 +202,19 @@ function drawStars(){
   });
   requestAnimationFrame(drawStars);
 }
-drawStars();
 
-// ری‌سایز canvas
-window.addEventListener('resize',()=>{
+// تنظیم اندازه canvas و ستاره‌ها
+function resizeCanvas(){
   eqCanvas.width = window.innerWidth;
   eqCanvas.height = window.innerHeight;
   starsCanvas.width = window.innerWidth;
   starsCanvas.height = window.innerHeight;
-});
+  initStars();
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+drawStars();
 </script>
 
 </body>
