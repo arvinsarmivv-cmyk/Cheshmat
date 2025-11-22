@@ -2,7 +2,7 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>❤️</title>
+<title>سایت عاشقانه کامیار</title>
 <style>
 body {
   margin:0;
@@ -104,13 +104,12 @@ const centerImg = document.getElementById('center-img');
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
 
-// تابع شروع آهنگ و اکولایزر (تضمینی)
+// شروع آهنگ بعد از کوچک‌ترین تعامل
 function startAudio() {
   if (started) return;
   started = true;
   overlay.style.display = 'none';
 
-  // AudioContext بعد از تعامل ساخته می‌شود
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
@@ -124,7 +123,7 @@ function startAudio() {
   drawEQ();
 }
 
-// کوچک‌ترین تعامل: لمس، کلیک، اسکرول
+// تعامل کوچک: لمس، کلیک، اسکرول
 document.addEventListener('touchstart', startAudio, { once:true });
 document.addEventListener('mousedown', startAudio, { once:true });
 document.addEventListener('scroll', startAudio, { once:true });
@@ -169,16 +168,16 @@ function drawEQ(){
   }
 }
 
-// ستاره‌ها (*) از بالای عکس تا پایین
+// ستاره‌ها (*) در کل صفحه
 const stars = [];
-const starCount = 100;
+const starCount = 150;
 
 for(let i=0;i<starCount;i++){
   stars.push({
     x: Math.random()*window.innerWidth,
-    y: Math.random()*centerImg.offsetTop,
+    y: Math.random()*window.innerHeight,
     size: Math.random()*3+1,
-    speed: Math.random()*1+0.5
+    speed: Math.random()*0.5+0.2
   });
 }
 
@@ -191,8 +190,8 @@ function drawStars(){
     sCtx.font = `${s.size*5}px Arial`;
     sCtx.fillText('*', s.x, s.y);
     s.y += s.speed;
-    if(s.y > centerImg.offsetTop + centerImg.offsetHeight){
-      s.y = centerImg.offsetTop;
+    if(s.y > window.innerHeight){
+      s.y = 0;
       s.x = Math.random()*window.innerWidth;
     }
   });
