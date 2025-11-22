@@ -2,35 +2,57 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>سایت کامیار</title>
+<title>سایت عاشقانه کامیار</title>
 <style>
   body {
     margin: 0;
     padding: 0;
-    background: url("cheshm.jpg") no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(135deg, #4b0082, #000000);
     color: white;
     font-family: sans-serif;
     text-align: center;
-    height: 200vh;
+    height: 105vh; /* بلند برای افکت اسکرول */
+    overflow-x: hidden;
   }
 
-  .title {
-    padding-top: 80px;
-    font-size: 28px;
-    text-shadow: 0 0 10px black;
+  /* عکس وسط */
+  #center-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: auto;
+    border-radius: 20px;
+    animation: pulse 2s infinite ease-in-out, floaty 4s infinite alternate;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    z-index: 2;
   }
 
-  canvas {
-    display: block;
-    margin: 40px auto;
-    background: rgba(0,0,0,0.2);
-    border-radius: 10px;
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  @keyframes floaty {
+    0% { transform: translate(-50%, -50%) translateY(0); }
+    100% { transform: translate(-50%, -50%) translateY(-20px); }
+  }
+
+  /* Canvas اکولایزر دایره‌ای */
+  #eqCanvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
   }
 
   .footer {
-    margin-top: 120vh;
-    padding: 40px 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 20px 0;
     font-size: 24px;
     background: rgba(0,0,0,0.4);
     backdrop-filter: blur(4px);
@@ -39,10 +61,11 @@
 </head>
 <body>
 
-<h2 class="title">🎵 برای شروع، روی صفحه لمس کنید</h2>
-
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
-<canvas id="eqCanvas" width="500" height="150"></canvas>
+
+<img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
+
+<canvas id="eqCanvas" width="500" height="500"></canvas>
 
 <div class="footer">کدینگ بای کامیار</div>
 
@@ -54,6 +77,9 @@ const ctx = canvas.getContext("2d");
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
 
+// رنگ‌های اکولایزر
+const colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#0000FF','#4B0082','#8B00FF'];
+
 function setupAudio() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
@@ -61,41 +87,54 @@ function setupAudio() {
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  analyser.fftSize = 64;
+  analyser.fftSize = 128;
   bufferLength = analyser.frequencyBinCount;
   dataArray = new Uint8Array(bufferLength);
 
   draw();
 }
 
+// رسم اکولایزر دایره‌ای
 function draw() {
   requestAnimationFrame(draw);
   analyser.getByteFrequencyData(dataArray);
 
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const barWidth = (canvas.width / bufferLength) - 2;
-  let x = 0;
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = 120;
+  const bars = bufferLength;
+  const step = (2 * Math.PI) / bars;
 
-  for (let i = 0; i < bufferLength; i++) {
-    const barHeight = dataArray[i];
-    ctx.fillStyle = `rgb(0, 255, 234)`;
-    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-    x += barWidth + 2;
+  for(let i = 0; i < bars; i++) {
+    const value = dataArray[i];
+    const barHeight = value / 2;
+    const angle = i * step;
+
+    const x1 = centerX + Math.cos(angle) * radius;
+    const y1 = centerY + Math.sin(angle) * radius;
+    const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+    const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+
+    ctx.strokeStyle = colors[i % colors.length];
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
   }
 }
 
+// شروع موسیقی و اکولایزر
 function startMusic() {
   if (started) return;
   started = true;
-
   audio.play();
   setupAudio();
-  document.querySelector('.title').style.display = 'none';
 }
 
-// **کوچکترین تعامل واقعی کافی است**
+// کوچکترین تعامل واقعی برای مرورگر
 document.body.addEventListener("click", startMusic, { once: true });
 document.body.addEventListener("touchstart", startMusic, { once: true });
 </script>
