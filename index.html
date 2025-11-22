@@ -16,6 +16,7 @@ body {
   position:relative;
 }
 
+/* Overlay شروع برای لمس واقعی */
 #startBtn {
   position:fixed;
   top:0;
@@ -31,11 +32,12 @@ body {
   z-index:999;
 }
 
+/* عکس وسط با افکت‌های 3D-like */
 #center-img {
   position:absolute;
   top:50%;
   left:50%;
-  transform:translate(-50%,-50%);
+  transform:translate(-70%,-70%);
   width:250px;
   border-radius:20px;
   box-shadow:0 0 20px rgba(255,255,255,0.5);
@@ -45,7 +47,7 @@ body {
 
 @keyframes pulse {0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.1);}}
 @keyframes floaty {0%{transform:translate(-50%,-50%) translateY(0);}100%{transform:translate(-50%,-50%) translateY(-20px);}}
-@keyframes glow {0%{box-shadow:0 0 20px rgba(255,255,255,0.3);}50%{box-shadow:0 0 40px rgba(255,255,255,0.7);}100%{box-shadow:0 0 20px rgba(255,255,255,0.3);}}
+@keyframes glow {0%{box-shadow:0 0 20px rgba(255,255,255,0.3);}50%{box-shadow:0 0 50px rgba(255,255,255,0.8);}100%{box-shadow:0 0 20px rgba(255,255,255,0.3);}}
 
 #eqCanvas {
   position:absolute;
@@ -85,13 +87,14 @@ let audioCtx, analyser, source, dataArray, bufferLength;
 let started=false;
 const colors=['#FF0000','#FF7F00','#FFFF00','#00FF00','#0000FF','#4B0082','#8B00FF'];
 
-// particles
+// particles حرفه‌ای
 const particles=[];
-for(let i=0;i<200;i++){
+for(let i=0;i<300;i++){
   particles.push({
     x:0, y:0, angle:Math.random()*2*Math.PI,
     radius:Math.random()*2+1, speed:Math.random()*2+1,
-    color:colors[Math.floor(Math.random()*colors.length)]
+    color:colors[Math.floor(Math.random()*colors.length)],
+    distance:Math.random()*150+50
   });
 }
 
@@ -102,7 +105,7 @@ function setupAudio(){
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  analyser.fftSize=128;
+  analyser.fftSize=256;
   bufferLength=analyser.frequencyBinCount;
   dataArray=new Uint8Array(bufferLength);
   draw();
@@ -122,7 +125,7 @@ function draw(){
 
   angleOffset+=0.01;
 
-  // اکولایزر دایره‌ای با ۵ افکت حرفه‌ای
+  // اکولایزر دایره‌ای با ۵ افکت
   for(let i=0;i<bars;i++){
     const value=dataArray[i];
     const barHeight=value/2;
@@ -135,34 +138,36 @@ function draw(){
 
     ctx.strokeStyle=colors[i%colors.length];
     ctx.shadowColor=colors[i%colors.length];
-    ctx.shadowBlur=10 + barHeight/10;
+    ctx.shadowBlur=10 + barHeight/8;
     ctx.lineWidth=4 + Math.sin(i/3)*2;
     ctx.beginPath();
     ctx.moveTo(x1,y1);
     ctx.lineTo(x2,y2);
     ctx.stroke();
 
-    // انفجار نور کوچک روی خطوط اکولایزر
+    // انفجار نور روی خطوط
     if(barHeight>40){
       ctx.beginPath();
-      ctx.arc(x2,y2,Math.random()*5+2,0,Math.PI*2);
+      ctx.arc(x2,y2,Math.random()*6+2,0,Math.PI*2);
       ctx.fillStyle=colors[i%colors.length];
       ctx.fill();
     }
   }
 
-  // particles نورانی
+  // particles حرفه‌ای با depth
   particles.forEach(p=>{
-    p.x=centerX+Math.cos(p.angle)*50;
-    p.y=centerY+Math.sin(p.angle)*50;
+    p.x=centerX+Math.cos(p.angle)*(p.distance);
+    p.y=centerY+Math.sin(p.angle)*(p.distance);
     p.angle+=0.02;
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+    ctx.arc(p.x,p.y,p.radius*(1+Math.sin(Date.now()/500)/2),0,Math.PI*2);
     ctx.fillStyle=p.color;
+    ctx.globalAlpha=0.7 + Math.sin(Date.now()/200)/3;
     ctx.fill();
   });
+  ctx.globalAlpha=1;
 
-  // scale و rotate عکس
+  // scale و rotate عکس وسط
   const scale=1+Math.sin(Date.now()/500)*0.05;
   centerImg.style.transform=`translate(-50%,-50%) scale(${scale}) rotate(${angleOffset*10}deg)`;
 }
