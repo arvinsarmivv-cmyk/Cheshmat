@@ -12,8 +12,7 @@
     color: white;
     font-family: sans-serif;
     text-align: center;
-    height: 200vh; /* بلند برای اسکرول */
-    overflow-x: hidden;
+    height: 200vh;
   }
 
   .title {
@@ -40,7 +39,7 @@
 </head>
 <body>
 
-<h2 class="title">برای شروع، صفحه را لمس کنید 🎵</h2>
+<h2 class="title">🎵 برای شروع، روی صفحه لمس کنید</h2>
 
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
 <canvas id="eqCanvas" width="500" height="150"></canvas>
@@ -93,15 +92,10 @@ function startMusic() {
 
   audio.play();
   setupAudio();
-
-  // مخفی کردن متن راهنما
   document.querySelector('.title').style.display = 'none';
-
-  // اسکرول به پایین صفحه به آرامی
-  window.scrollTo({ top: 500, behavior: 'smooth' });
 }
 
-// تعامل واقعی از کاربر
+// **کوچکترین تعامل واقعی کافی است**
 document.body.addEventListener("click", startMusic, { once: true });
 document.body.addEventListener("touchstart", startMusic, { once: true });
 </script>
