@@ -11,8 +11,20 @@
     color: white;
     font-family: sans-serif;
     text-align: center;
-    height: 105vh; /* بلند برای افکت اسکرول */
+    height: 105vh;
     overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Overlay برای گرفتن لمس واقعی */
+  #overlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index: 999;
+    cursor: pointer;
   }
 
   /* عکس وسط */
@@ -61,6 +73,9 @@
 </head>
 <body>
 
+<!-- لایه overlay برای لمس -->
+<div id="overlay"></div>
+
 <audio id="player" src="ahang.mp3" preload="auto" playsinline></audio>
 
 <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
@@ -73,11 +88,9 @@
 const audio = document.getElementById("player");
 const canvas = document.getElementById("eqCanvas");
 const ctx = canvas.getContext("2d");
-
+const overlay = document.getElementById("overlay");
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
-
-// رنگ‌های اکولایزر
 const colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#0000FF','#4B0082','#8B00FF'];
 
 function setupAudio() {
@@ -98,7 +111,6 @@ function setupAudio() {
 function draw() {
   requestAnimationFrame(draw);
   analyser.getByteFrequencyData(dataArray);
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const centerX = canvas.width / 2;
@@ -130,13 +142,17 @@ function draw() {
 function startMusic() {
   if (started) return;
   started = true;
+
   audio.play();
   setupAudio();
+
+  // حذف overlay تا تعامل بعدی آزاد شود
+  overlay.remove();
 }
 
-// کوچکترین تعامل واقعی برای مرورگر
-document.body.addEventListener("click", startMusic, { once: true });
-document.body.addEventListener("touchstart", startMusic, { once: true });
+// لمس واقعی از کاربر برای شروع
+overlay.addEventListener("click", startMusic, { once: true });
+overlay.addEventListener("touchstart", startMusic, { once: true });
 </script>
 
 </body>
