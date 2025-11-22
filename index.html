@@ -11,9 +11,7 @@ body {
   font-family:sans-serif;
   overflow:hidden;
   height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  width:100vw;
   text-align:center;
   color:white;
 }
@@ -79,17 +77,17 @@ body {
 </head>
 <body>
 
-<div id="overlay"></div>
+<div id="overlay">‌</div>
 
 <canvas id="starsCanvas"></canvas>
 <canvas id="eqCanvas"></canvas>
 
 <div style="position:relative;">
-  <img id="center-img" src="cheshm.jpg" alt="چشم عاشقانه">
+  <img id="center-img" src="cheshm1.jpg" alt="چشمات">
   <span onclick="window.open('tg://resolve?domain=kameiyar','_blank')"></span>
 </div>
 
-<audio id="player" src="Ahang1.mp3" preload="auto" playsinline></audio>
+<audio id="player" src="ahang1.mp3" preload="auto" playsinline></audio>
 
 <div class="footer">Coded by <a href="https://t.me/kameiyar" target="_blank">kamiyar</a></div>
 
@@ -105,13 +103,13 @@ const centerImg = document.getElementById('center-img');
 let audioCtx, analyser, source, dataArray, bufferLength;
 let started = false;
 
-// شروع آهنگ بعد از کوچک‌ترین تعامل
+// تابع شروع آهنگ و اکولایزر بعد از تعامل
 function startAudio() {
-  if (started) return;
+  if(started) return;
   started = true;
-  overlay.style.display = 'none';
+  overlay.style.display='none';
 
-  // AudioContext بعد از تعامل ساخته شود
+  // ساخت AudioContext تضمینی بعد از تعامل کاربر
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   source = audioCtx.createMediaElementSource(audio);
   analyser = audioCtx.createAnalyser();
@@ -125,10 +123,9 @@ function startAudio() {
   drawEQ();
 }
 
-// تعاملات کوچک: لمس، کلیک، اسکرول
-document.addEventListener('touchstart', startAudio, { once:true });
-document.addEventListener('mousedown', startAudio, { once:true });
-document.addEventListener('scroll', startAudio, { once:true });
+// تعامل کوچک: لمس یا کلیک
+overlay.addEventListener('click', startAudio, {once:true});
+overlay.addEventListener('touchstart', startAudio, {once:true});
 
 // اکولایزر ژله‌ای مشکی-بنفش
 let angleOffset=0;
@@ -170,9 +167,9 @@ function drawEQ(){
   }
 }
 
-// ستاره‌ها (*) در کل صفحه
+// ستاره‌ها (*) در تمام صفحه
 const stars = [];
-const starCount = 200;
+const starCount = 250;
 
 function initStars(){
   stars.length = 0;
